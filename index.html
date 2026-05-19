@@ -262,13 +262,13 @@
           Diez valuaciones reales sobre tu portafolio actual, en 30 días, sin costo. Si el SLA y la calidad cumplen, formalizamos contrato anual con tarifas preferenciales y acceso a la API.
         </p>
 
-        <form class="form-grid" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Recibido — te contactamos en 24h';this.querySelector('button').disabled=true;">
-          <div class="field-wrap"><label>Nombre</label><input type="text" required placeholder="Tu nombre"></div>
-          <div class="field-wrap"><label>Empresa</label><input type="text" required placeholder="Razón social"></div>
-          <div class="field-wrap"><label>Email corporativo</label><input type="email" required placeholder="nombre@empresa.com"></div>
-          <div class="field-wrap"><label>Teléfono</label><input type="tel" placeholder="55 0000 0000"></div>
-          <div class="field-wrap full"><label>Línea de interés</label><select required><option value="">Selecciona...</option><option>Avalúa Movilidad</option><option>Avalúa Industrial</option><option>Ambas líneas</option></select></div>
-          <div class="field-wrap full"><label>¿Qué necesitas valuar?</label><textarea placeholder="Describe brevemente tu necesidad y volumen estimado..."></textarea></div>
+        <form class="form-grid" id="form-piloto">
+          <div class="field-wrap"><label>Nombre</label><input type="text" name="nombre" required placeholder="Tu nombre"></div>
+          <div class="field-wrap"><label>Empresa</label><input type="text" name="empresa" required placeholder="Razón social"></div>
+          <div class="field-wrap"><label>Email corporativo</label><input type="email" name="email" required placeholder="nombre@empresa.com"></div>
+          <div class="field-wrap"><label>Teléfono</label><input type="tel" name="telefono" placeholder="55 0000 0000"></div>
+          <div class="field-wrap full"><label>Línea de interés</label><select name="interes" required><option value="">Selecciona...</option><option>Avalúa Movilidad</option><option>Avalúa Industrial</option><option>Ambas líneas</option></select></div>
+          <div class="field-wrap full"><label>¿Qué necesitas valuar?</label><textarea name="mensaje" placeholder="Describe brevemente tu necesidad y volumen estimado..."></textarea></div>
           <div class="full" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:8px">
             <button type="submit" class="btn btn-primary">Agendar conversación →</button>
             <a href="historia.html" class="btn btn-secondary">Conocer la historia</a>
