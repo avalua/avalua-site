@@ -324,6 +324,89 @@
   document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
   document.getElementById('yr').textContent = new Date().getFullYear();
 </script>
+<!-- Web3Forms integration · Avalúa -->
+<script>
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    var form = document.querySelector('#contacto form') || document.querySelector('form');
+    if (!form) {
+      console.warn('Avalúa: no se encontró formulario en la página.');
+      return;
+    }
 
+    var hiddenFields = {
+      access_key: 'b64934ea-36a6-499a-a9a2-ce52eb07fa14',
+      subject: 'Nuevo lead piloto · avalua.com.mx',
+      from_name: 'Avalúa · Formulario web'
+    };
+    Object.keys(hiddenFields).forEach(function (name) {
+      if (!form.querySelector('input[name="' + name + '"]')) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = hiddenFields[name];
+        form.appendChild(input);
+      }
+    });
+
+    if (!form.querySelector('input[name="botcheck"]')) {
+      var honeypot = document.createElement('input');
+      honeypot.type = 'checkbox';
+      honeypot.name = 'botcheck';
+      honeypot.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+      honeypot.tabIndex = -1;
+      honeypot.autocomplete = 'off';
+      form.appendChild(honeypot);
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button:not([type])');
+      var originalHTML = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Enviando...';
+        submitBtn.style.opacity = '0.7';
+      }
+
+      var data = {};
+      new FormData(form).forEach(function (v, k) { data[k] = v; });
+
+      try {
+        var res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data)
+        });
+        var result = await res.json();
+
+        if (res.ok && result.success) {
+          form.innerHTML =
+            '<div style="padding:64px 0;">' +
+              '<div style="font-family:Fraunces,Georgia,serif;font-size:clamp(36px,4.5vw,56px);line-height:1.05;font-weight:400;letter-spacing:-0.02em;color:#faf6ee;">' +
+                'Mensaje <em style="font-style:italic;color:#fbbf24;">recibido.</em>' +
+              '</div>' +
+              '<p style="margin-top:20px;font-size:16px;line-height:1.65;color:rgba(245,240,232,0.78);max-width:520px;">' +
+                'Gracias por contactar a Avalúa. Un especialista del equipo revisará tu solicitud y te responderá en menos de 24 horas hábiles al correo que nos proporcionaste.' +
+              '</p>' +
+            '</div>';
+          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          throw new Error(result.message || 'Error en envío');
+        }
+      } catch (err) {
+        console.error('Web3Forms:', err);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+          submitBtn.style.opacity = '1';
+        }
+        alert('No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos directo a a.torres@avalua.com.mx');
+      }
+    });
+  });
+})();
+</script>
+  
 </body>
 </html>
