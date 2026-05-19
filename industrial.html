@@ -167,12 +167,12 @@
         <div class="eyebrow" style="color:var(--amber-2)"><span class="dot"></span>SIGUIENTE PASO</div>
         <h2 class="editorial-h2" style="color:var(--bone)">Validemos en<em style="color:var(--amber)">tu portafolio industrial.</em></h2>
         <p style="margin-top:32px">10 valuaciones sobre tu inventario actual. 30 días. Sin costo. Comparativo lado a lado con tu proceso vigente.</p>
-        <form class="form-grid" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Recibido — te contactamos en 24h';this.querySelector('button').disabled=true;">
-          <div class="field-wrap"><label>Nombre</label><input type="text" required placeholder="Tu nombre"></div>
-          <div class="field-wrap"><label>Empresa</label><input type="text" required placeholder="Razón social"></div>
-          <div class="field-wrap"><label>Email corporativo</label><input type="email" required placeholder="nombre@empresa.com"></div>
-          <div class="field-wrap"><label>Teléfono</label><input type="tel" placeholder="55 0000 0000"></div>
-          <div class="field-wrap full"><label>Tipo de activo</label><select><option>Construcción pesada</option><option>Energético / petrolero</option><option>Logística / industrial</option><option>Mixto</option></select></div>
+        <form class="form-grid" id="form-piloto">
+          <div class="field-wrap"><label>Nombre</label><input type="text" required placeholder="Tu nombre" name="nombre"></div>
+          <div class="field-wrap"><label>Empresa</label><input type="text" required placeholder="Razón social" name="empresa"></div>
+          <div class="field-wrap"><label>Email corporativo</label><input type="email" required placeholder="nombre@empresa.com" name="email"></div>
+          <div class="field-wrap"><label>Teléfono</label><input type="tel" placeholder="55 0000 0000" name="telefono"></div>
+          <div class="field-wrap full"><label>Tipo de activo</label><select name="tipo_activo"><option>Construcción pesada</option><option>Energético / petrolero</option><option>Logística / industrial</option><option>Mixto</option></select></div>
           <div class="full"><button type="submit" class="btn btn-primary">Agendar conversación →</button></div>
         </form>
       </div>
@@ -196,5 +196,83 @@
 </footer>
 
 <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+<!-- Web3Forms integration · Avaluá -->
+<script>
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    var form = document.querySelector('#contacto form') || document.querySelector('form');
+    if (!form) {
+      console.warn('Avaluá: no se encontró formulario en la página.');
+      return;
+    }
+    var hiddenFields = {
+      access_key: 'b64934ea-36a6-499a-a9a2-ce52eb07fa14',
+      subject: 'Nuevo lead · avalua.com.mx',
+      from_name: 'Avaluá · Formulario web'
+    };
+    Object.keys(hiddenFields).forEach(function (name) {
+      if (!form.querySelector('input[name="' + name + '"]')) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = hiddenFields[name];
+        form.appendChild(input);
+      }
+    });
+    if (!form.querySelector('input[name="botcheck"]')) {
+      var honeypot = document.createElement('input');
+      honeypot.type = 'checkbox';
+      honeypot.name = 'botcheck';
+      honeypot.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+      honeypot.tabIndex = -1;
+      honeypot.autocomplete = 'off';
+      form.appendChild(honeypot);
+    }
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button:not([type])');
+      var originalHTML = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Enviando...';
+        submitBtn.style.opacity = '0.7';
+      }
+      var data = {};
+      new FormData(form).forEach(function (v, k) { data[k] = v; });
+      try {
+        var res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (res.ok && result.success) {
+          form.innerHTML =
+            '<div style="padding:64px 0;">' +
+              '<div style="font-family:Fraunces,Georgia,serif;font-size:clamp(36px,4.5vw,56px);line-height:1.05;font-weight:400;letter-spacing:-0.02em;color:#faf6ee;">' +
+                'Mensaje <em style="font-style:italic;color:#fbbf24;">recibido.</em>' +
+              '</div>' +
+              '<p style="margin-top:20px;font-size:16px;line-height:1.65;color:rgba(245,240,232,0.78);max-width:520px;">' +
+                'Gracias por contactar a Avaluá. Un especialista del equipo revisará tu solicitud y te responderá en menos de 24 horas hábiles al correo que nos proporcionaste.' +
+              '</p>' +
+            '</div>';
+          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          throw new Error(result.message || 'Error en envío');
+        }
+      } catch (err) {
+        console.error('Web3Forms:', err);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+          submitBtn.style.opacity = '1';
+        }
+        alert('No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos directo a a.torres@avalua.com.mx');
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
